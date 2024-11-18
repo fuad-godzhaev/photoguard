@@ -5,20 +5,25 @@ import requests
 import torch
 from tqdm import tqdm
 from PIL import Image, ImageOps
-from diffusers import StableDiffusionInpaintPipeline
+from diffusers import StableDiffusionInpaintPipeline, DiffusionPipeline
 from torchvision.transforms import ToPILImage
 from utils import preprocess, prepare_mask_and_masked_image, recover_image, resize_and_crop
 
 gr.close_all()
 topil = ToPILImage()
 
-pipe_inpaint = StableDiffusionInpaintPipeline.from_pretrained(
+'''pipe_inpaint = StableDiffusionInpaintPipeline.from_pretrained(
     "runwayml/stable-diffusion-inpainting",
     revision="fp16",
     torch_dtype=torch.float16,
     safety_checker=None,
 )
 pipe_inpaint = pipe_inpaint.to("cuda")
+'''
+
+pipe_inpaint = DiffusionPipeline.from_pretrained("stable-diffusion-v1-5/stable-diffusion-v1-5",  torch_dtype=torch.float16)
+pipe_inpaint.to("cuda")
+
 
 ## Good params for editing that we used all over the paper --> decent quality and speed   
 GUIDANCE_SCALE = 7.5
@@ -174,7 +179,7 @@ with gr.Blocks() as demo:
         with gr.Column():
             genimages = gr.Gallery(label="Generated images", 
                        show_label=False, 
-                       elem_id="gallery").style(grid=[1,2], height="auto")
+                       elem_id="gallery") #style = scale?
             duplicate = gr.HTML("""
                 <p>For faster inference without waiting in queue, you may duplicate the space and upgrade to GPU in settings.
                 <br/>
